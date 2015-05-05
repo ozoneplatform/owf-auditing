@@ -13,13 +13,12 @@ grails.project.dependency.resolution = {
         grailsPlugins()
         grailsHome()
         mavenLocal()
-        mavenRepo "https://www.owfgoss.org/nexus/content/groups/public"
+        mavenRepo "https://repo1.maven.org/maven2"
         grailsCentral()
         mavenCentral()
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
