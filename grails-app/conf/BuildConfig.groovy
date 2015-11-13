@@ -27,3 +27,13 @@ grails.project.dependency.resolution = {
         }
     }
 }
+
+grails.release.scm.enabled = false
+
+//Sonatype-run maven central
+grails.project.repos.ossrhSnapshots.url =
+    'https://oss.sonatype.org/content/repositories/snapshots'
+grails.project.repos.ossrhReleases.url =
+    'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+
+grails.project.repos.default = "ossrhSnapshots"
