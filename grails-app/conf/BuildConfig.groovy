@@ -22,7 +22,7 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
-        compile(':maven-publisher:0.8.1', ':hibernate:1.3.7', ':quartz:0.4.2') {
+        compile(':release:3.1.1', ':hibernate:3.6.10.14', ':quartz:1.0.1') {
             export = false
         }
     }
