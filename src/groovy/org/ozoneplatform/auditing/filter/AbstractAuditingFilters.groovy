@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession
 abstract class AbstractAuditingFilters {
 
 	private static final Logger log = Logger.getLogger(AbstractAuditingFilters)
-	
+
 	def filters = {
 
 		checkLogOn(controller: '*', action: '*') {
@@ -66,8 +66,8 @@ abstract class AbstractAuditingFilters {
         }
 	}
 
-	protected void logLogOnEvent(HttpServletRequest request){		
-		
+	protected void logLogOnEvent(HttpServletRequest request){
+
 		if(doCefLogging()){
 			CEF cef = CEFFactory.buildBaseCEF(getCEFVersion(), getDeviceVendor(), getDeviceProduct(), getDeviceVersion(), EventTypes.LOGON.getDescription(), "A logon event occured.", 7)
 			def fields = ExtensionFactory.getBaseExtensionFields(request, getUserName(), getApplicationVersion(),getHostClassification())
@@ -81,11 +81,11 @@ abstract class AbstractAuditingFilters {
 			cef.extension = new Extension(fields)
 			log.info cef.toString()
 		}
-		
+
 	}
-	
-	protected void logLogOffEvent(HttpServletRequest request){		
-		
+
+	protected void logLogOffEvent(HttpServletRequest request){
+
 		if(doCefLogging()){
 			CEF cef = CEFFactory.buildBaseCEF(getCEFVersion(), getDeviceVendor(), getDeviceProduct(), getDeviceVersion(), EventTypes.LOGOFF.getDescription(), "A logoff event occured.", 5)
 			def fields = ExtensionFactory.getBaseExtensionFields(request, getUserName(), getApplicationVersion(),getHostClassification())
@@ -93,20 +93,20 @@ abstract class AbstractAuditingFilters {
 			cef.extension = new Extension(fields)
 			log.info cef.toString()
 		}
-		
+
 	}
-	
+
 	protected void logSearchEvent(HttpServletRequest request, def model){
-		
-		if(doCefLogging()){						
+
+		if(doCefLogging()){
 			CEF cef = CEFFactory.buildBaseCEF(getCEFVersion(), getDeviceVendor(), getDeviceProduct(), getDeviceVersion(), EventTypes.OBJ_SEARCH.getDescription(), "A search action was performed.", 5)
 			def fields = ExtensionFactory.getBaseExtensionFields(request, getUserName(), getApplicationVersion(), getHostClassification())
-			
+
 			fields[Extension.EVENT_TYPE] = EventTypes.OBJ_SEARCH.getDescription()
-			
+
 			def modelName = /(?i)(.*items.*|.*results.*|.*list.*)/
 			def results = model.find { k, v -> k ==~  modelName && v instanceof List }
-	
+
 			fields[Extension.PAYLOAD]				= results ? results?.key : request.getRequestURI()
 			fields[Extension.PAYLOAD_CLS]			= getHostClassification()
 			fields[Extension.PAYLOAD_ID]			= results ? results?.key : request.getRequestURI()
@@ -117,19 +117,19 @@ abstract class AbstractAuditingFilters {
 			fields[Extension.SEARCH_TEXT] 			= request?.getParameterMap()?.size() > 0 ? request?.getParameterMap()?.toMapString() : request.getAttribute("javax.servlet.forward.request_uri")
 			fields[Extension.SEARCH_STYLE] 			= "USER_DRIVEN"
 			fields[Extension.IS_SPANNING] 			= "FALSE"
-	
+
 			cef.extension = new Extension(fields)
-			log.info cef.toString()			
+			log.info cef.toString()
 		}
-			
+
 	}
-	
-	
+
+
 	//Log Import event
-	protected void logImportEvent(def request){			
-		
+	protected void logImportEvent(def request){
+
 		if(doCefLogging()){
-			
+
 		  // The import may be an entire file submitted via multipart message
 		  // Log that differently than if the import data is just a POST parameter
 		  if (request.getContentType()?.toLowerCase()?.startsWith("multipart/form-data"))
@@ -138,16 +138,16 @@ abstract class AbstractAuditingFilters {
 				CEF cef = CEFFactory.buildBaseCEF(getCEFVersion(), getDeviceVendor(), getDeviceProduct(), getDeviceVersion(), EventTypes.IMPORT.getDescription(), "A file was imported.", 7)
 				def fields = ExtensionFactory.getBaseExtensionFields(request, getUserName(), getApplicationVersion(),getHostClassification())
 				fields[Extension.EVENT_TYPE] = EventTypes.IMPORT.getDescription()
-				
+
 				def file = request.getFile(it)
-				
+
 				fields[Extension.PAYLOAD]				= file.getName()
 				fields[Extension.PAYLOAD_CLS]			= getHostClassification()
 				fields[Extension.PAYLOAD_ID]			= file.getOriginalFilename()
 				fields[Extension.PAYLOAD_SIZE]			= file.getBytes().length
 				fields[Extension.PAYLOAD_TYPE]			= PayloadType.FILE.getDescription()
 				fields[Extension.MEDIA_TYPE]			= Extension.UNKOWN_VALUE
-				
+
 				cef.extension = new Extension(fields)
 				log.info cef.toString()
 			}
@@ -158,43 +158,42 @@ abstract class AbstractAuditingFilters {
 			  CEF cef = CEFFactory.buildBaseCEF(getCEFVersion(), getDeviceVendor(), getDeviceProduct(), getDeviceVersion(), EventTypes.IMPORT.getDescription(), "A JSON object was imported.", 7)
 			  def fields = ExtensionFactory.getBaseExtensionFields(request, getUserName(), getApplicationVersion(),getHostClassification())
 			  fields[Extension.EVENT_TYPE] = EventTypes.IMPORT.getDescription()
-  
+
 			  fields[Extension.PAYLOAD]				= request.getRequestURI()
 			  fields[Extension.PAYLOAD_CLS]			= getHostClassification()
 			  fields[Extension.PAYLOAD_ID]			= request.getRequestURI()
 			  fields[Extension.PAYLOAD_SIZE]			= request.getParameter("json")?.size().toString()
 			  fields[Extension.PAYLOAD_TYPE]			= PayloadType.OBJECT.getDescription()
 			  fields[Extension.MEDIA_TYPE]			= Extension.UNKOWN_VALUE
-  
+
 			  cef.extension = new Extension(fields)
 			  log.info cef.toString()
 		  }
 		}
-		
+
 	}
-	
+
 	//Log Export event
-	protected void logExportEvent(def request, def response){	
-		
+	protected void logExportEvent(def request, def response){
+
 		if(doCefLogging()){
 			CEF cef = CEFFactory.buildBaseCEF(getCEFVersion(), getDeviceVendor(), getDeviceProduct(), getDeviceVersion(), EventTypes.EXPORT.getDescription(), "A file was exported.", 7)
 			def fields = ExtensionFactory.getBaseExtensionFields(request, getUserName(), getApplicationVersion(),getHostClassification())
 			fields[Extension.EVENT_TYPE] = EventTypes.EXPORT.getDescription()
-			
+
 			fields[Extension.PAYLOAD]				= request.getAttribute("fileName")
 			fields[Extension.PAYLOAD_CLS]			= getHostClassification()
 			fields[Extension.PAYLOAD_ID]			= request.getAttribute("fileName")
 			fields[Extension.PAYLOAD_SIZE]			= request.getAttribute("fileSize")
 			fields[Extension.PAYLOAD_TYPE]			= PayloadType.FILE.getDescription()
 			fields[Extension.MEDIA_TYPE]			= Extension.UNKOWN_VALUE
-			
+
 			cef.extension = new Extension(fields)
 			log.info cef.toString()
-		}		
-			
+		}
+
 	}
-	
-	@Override
+
 	protected boolean isLogOnEvent(HttpSession session) {
 		try{
 			if (session.loginWasAudited) {
@@ -206,16 +205,16 @@ abstract class AbstractAuditingFilters {
 		}
 		return true
 	}
-	
+
 	abstract boolean doCefLogging()
-	
+
 	abstract String getApplicationVersion()
-	
+
 	abstract String getUserName()
-	
+
 	//This is form other information regarding the  user like roles, email, org, etc
 	abstract def getUserInfo()
-	
+
 	abstract String getHostClassification()
 
 	abstract String getDeviceVendor()
