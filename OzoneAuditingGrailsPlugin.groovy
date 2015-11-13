@@ -16,7 +16,7 @@
 
 class OzoneAuditingGrailsPlugin {
     // the plugin version
-    def version = "1.3.1-SNAPSHOT"
+    def version = "1.3.1"
     def groupId = 'org.ozoneplatform'
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.4.2 > *"
